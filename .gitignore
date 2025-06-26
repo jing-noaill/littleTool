@@ -1,0 +1,10 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/.vs/TcpServer
+/TcpServer/x64/Debug
+/TcpServer/x64/Release/qt
+/TcpServer/x64/Release/TcpServer.tlog
+/TcpServer/x64/Release
+/x64
