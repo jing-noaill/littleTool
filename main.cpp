@@ -58,8 +58,8 @@ void select(QString time, QString path)
     std::vector<int>board_vec;
     std::vector<QString>element_vec;
     QDateTime time_sql = QDateTime::fromString(time, "yyyyMMddhhmmss");
-    auto time_again = time_sql.addSecs(-5).toString("yyyy-MM-dd HH:mm:ss");
-    auto time_before = time_sql.addSecs(5).toString("yyyy-MM-dd HH:mm:ss");
+    auto time_again = time_sql.addSecs(-1*60*60).toString("yyyy-MM-dd HH:mm:ss");
+    auto time_before = time_sql.addSecs(1 * 60 * 60).toString("yyyy-MM-dd HH:mm:ss");
     QSqlQuery query(QString("SELECT * "
         "FROM public.\"board_info\" "
         "WHERE create_time > '%1' and create_time < '%2';")
@@ -90,16 +90,25 @@ void select(QString time, QString path)
             QJsonObject obj = doc_.object();
             QString total = obj.value("crop_source_image").toString(); 
 
+            int lastIndex = path.lastIndexOf('\\');
+            QString dirPath = path.left(lastIndex + 1);
+            QString newPath = total.replace('/', '\\');
+            int lastIndex_1 = newPath.lastIndexOf('\\');
+            QString dirPath_1 = newPath.left(lastIndex_1 + 1);
+            //std::cout << dirPath.toStdString() << dirPath_1.toStdString();
+            if (dirPath_1 != dirPath)
+                break;
             QString fileNameWithExt = QFileInfo(str).fileName();
             //QString fileNameWithoutExt = fileNameWithExt.split('.').first();
             //QString targetPart = fileNameWithoutExt.split("-").last();
             if (fileNameWithExt.contains(name_item))
             {
                 QFile::rename(path, total);
-                std::cout << "rename:" << std::endl 
-                    << "old name:\t" << path.toStdString() 
+                std::cout << "rename:" << std::endl
+                    << "old name:\t" << path.toStdString()
                     << "new name:\t" << total.toStdString() << std::endl << std::endl;
                 return;
+                
             }
         }
     }
@@ -124,7 +133,11 @@ int main(int argc, char *argv[])
     std::ifstream infile;
     // 将文件流对象与文件关联起来，默认以只读方式打开std::ios::in
     infile.open(folder.toStdString());
-    if (!infile.is_open()) return -1;
+    if (!infile.is_open()) 
+    {
+        std::cout << "!infile.is_open()" << std::endl;
+        return -1;
+    }
     std::map<std::string, std::string> words;
     std::string work, data;
     while (std::getline(infile, work))
@@ -151,8 +164,11 @@ int main(int argc, char *argv[])
     database.setDatabaseName(QString::fromStdString(words["database_name"]));
     database.setUserName(QString::fromStdString(words["username"]));
     database.setPassword(QString::fromStdString(words["password"]));
-    bool is_ok = database.open();
-
+    if(!database.open())
+    {
+        std::cout << "!database.open()" << std::endl;
+        return -1;
+    }
     std::string folderPath = QString::fromStdString(words["targetpath"]).toStdString();
     GetAllFiles(folderPath, Alarm_files_vec);
     for (auto path : Alarm_files_vec)
@@ -167,6 +183,8 @@ int main(int argc, char *argv[])
         if (std::regex_search(path, matches, time_regex)) {
             time = time + std::string(matches[1]);
         }
+        std::cout << time << std::endl;
+        std::cout << path << std::endl;
         select(QString::fromStdString(time), QString::fromStdString(path));
     }
     database.close();
