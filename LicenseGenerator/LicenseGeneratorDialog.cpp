@@ -16,8 +16,18 @@ void LicenseGeneratorDialog::setupUI()
    /* machineCodeEdit->setText(licenseSystem.generateMachineFingerprint());*/
     // 过期日期
     QLabel* expiryLabel = new QLabel(u8"过期日期:", this);
+    QComboBox * comboBox = new QComboBox(this);
+    comboBox->addItem(u8"1天");
+    comboBox->addItem(u8"1周");
+    comboBox->addItem(u8"1月");
+    comboBox->addItem(u8"3月");
+    comboBox->addItem(u8"6月");
+    comboBox->addItem(u8"1年");
+    comboBox->addItem(u8"3年");
+    comboBox->addItem(u8"10年");
+
     expiryDateEdit = new QDateEdit(this);
-    expiryDateEdit->setDate(QDate::currentDate().addYears(1));
+    expiryDateEdit->setDate(QDate::currentDate().addDays(1));
     expiryDateEdit->setCalendarPopup(true);
 
     // 生成按钮
@@ -33,6 +43,7 @@ void LicenseGeneratorDialog::setupUI()
     layout->addWidget(machineLabel);
     layout->addWidget(machineCodeEdit);
     layout->addWidget(expiryLabel);
+    layout->addWidget(comboBox);
     layout->addWidget(expiryDateEdit);
     layout->addWidget(generateBtn);
     layout->addWidget(licenseLabel);
@@ -41,6 +52,26 @@ void LicenseGeneratorDialog::setupUI()
     setLayout(layout);
     setWindowTitle(u8"注册码生成工具");
     resize(500, 400);
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        [=](int index) {
+            if (index == 0)
+                expiryDateEdit->setDate(QDate::currentDate().addDays(1));
+            else if (index == 1)
+                expiryDateEdit->setDate(QDate::currentDate().addDays(7));
+            else if (index == 2)
+                expiryDateEdit->setDate(QDate::currentDate().addMonths(1));
+            else if (index == 3)
+                expiryDateEdit->setDate(QDate::currentDate().addMonths(3));
+            else if (index == 4)
+                expiryDateEdit->setDate(QDate::currentDate().addMonths(6));
+            else if (index == 5)
+                expiryDateEdit->setDate(QDate::currentDate().addYears(1));
+            else if (index == 6)
+                expiryDateEdit->setDate(QDate::currentDate().addYears(3));
+            else if (index == 7)
+                expiryDateEdit->setDate(QDate::currentDate().addYears(10));
+        });
+
 }
 
 void LicenseGeneratorDialog::generateLicense()

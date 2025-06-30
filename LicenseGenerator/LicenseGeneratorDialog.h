@@ -8,6 +8,7 @@
 #include <QPlainTextEdit>
 #include <QDateEdit>
 #include <QMessageBox>
+#include <QComboBox>
 #include "LicenseSystem.h"
 class LicenseGeneratorDialog : public QDialog {
     Q_OBJECT
